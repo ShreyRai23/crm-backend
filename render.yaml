@@ -1,0 +1,22 @@
+services:
+  - type: web
+    name: xeno-crm-backend
+    runtime: node
+    plan: free
+    region: singapore          # closest to India
+    buildCommand: npm install
+    startCommand: npm run start:crm
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3000
+      - key: MONGODB_URI
+        sync: false            # set manually in Render dashboard
+      - key: GEMINI_API_KEY
+        sync: false            # set manually in Render dashboard
+      - key: GEMINI_MODEL
+        value: gemini-3.5-flash
+      - key: FRONTEND_URL
+        sync: false            # set to your Vercel URL after deploying frontend
