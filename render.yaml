@@ -10,8 +10,6 @@ services:
     envVars:
       - key: NODE_ENV
         value: production
-      - key: PORT
-        value: 3000
       - key: MONGODB_URI
         sync: false            # set manually in Render dashboard
       - key: GEMINI_API_KEY
@@ -20,3 +18,21 @@ services:
         value: gemini-3.5-flash
       - key: FRONTEND_URL
         sync: false            # set to your Vercel URL after deploying frontend
+
+      # ── Embedded Channel Service ─────────────────────────────────────────────
+      # Mounts the channel simulator inside the CRM process so no second
+      # port/dyno is needed on Render's free tier.
+      - key: EMBEDDED_CHANNEL
+        value: "true"
+
+      # CHANNEL_SERVICE_URL: where the CRM POSTs messages to the channel service.
+      # On Render, this points back to itself on the /channel prefix.
+      # IMPORTANT: Replace <your-render-service-name> with your actual Render URL.
+      - key: CHANNEL_SERVICE_URL
+        sync: false            # set to: https://<your-service>.onrender.com/channel
+
+      # CRM_RECEIPT_URL: where the channel simulator fires delivery webhooks back to.
+      # Must also be the Render public URL so internal calls go through the live server.
+      # IMPORTANT: Replace <your-render-service-name> with your actual Render URL.
+      - key: CRM_RECEIPT_URL
+        sync: false            # set to: https://<your-service>.onrender.com/api/receipt/delivery

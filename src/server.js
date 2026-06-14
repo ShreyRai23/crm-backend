@@ -20,6 +20,12 @@ const aiRoutes        = require('./routes/ai.routes');
 const receiptRoutes   = require('./routes/receipt.routes');
 const analyticsRoutes = require('./routes/analytics.routes');
 
+// ─── Embedded Channel Service (production-only) ───────────────────────────────
+// When EMBEDDED_CHANNEL=true the channel simulator is mounted directly on the
+// CRM app instead of running as a separate process on port 3001.
+// This makes single-dyno deployments (Render free tier) work correctly.
+const EMBEDDED_CHANNEL = process.env.EMBEDDED_CHANNEL === 'true';
+
 // ─── App initialization ───────────────────────────────────────────────────────
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -81,6 +87,13 @@ app.use('/api/campaigns',  campaignRoutes);
 app.use('/api/ai',         aiRoutes);
 app.use('/api/receipt',    receiptRoutes);
 app.use('/api/analytics',  analyticsRoutes);
+
+// ─── Embedded Channel Service routes (production only) ────────────────────────
+if (EMBEDDED_CHANNEL) {
+  const channelRouter = require('../channel-service/router');
+  app.use('/channel', channelRouter);
+  console.log('[Server] Channel Service embedded on /channel (production mode)');
+}
 
 // ─── 404 & Error handlers ─────────────────────────────────────────────────────
 app.use(notFound);
