@@ -172,7 +172,9 @@ Now convert this query into a pipeline JSON array. Return ONLY the JSON array, n
 
   let pipeline;
   try {
-    pipeline = JSON.parse(cleaned);
+    const match = cleaned.match(/\[[\s\S]*\]/);
+    const jsonStr = match ? match[0] : cleaned;
+    pipeline = JSON.parse(jsonStr);
   } catch {
     throw new AppError(
       'AI returned an unparseable response. Please rephrase your query.',
@@ -300,7 +302,9 @@ Return ONLY the JSON object, nothing else.
 
   let content;
   try {
-    content = JSON.parse(cleaned);
+    const match = cleaned.match(/\{[\s\S]*\}/);
+    const jsonStr = match ? match[0] : cleaned;
+    content = JSON.parse(jsonStr);
   } catch {
     // If JSON parse fails, return the raw text as body
     content = {
@@ -400,11 +404,16 @@ Return ONLY the JSON array:
 
   let suggestions;
   try {
-    suggestions = JSON.parse(cleaned);
+    // Try to extract just the JSON array if there's conversational filler text
+    const match = cleaned.match(/\[[\s\S]*\]/);
+    const jsonStr = match ? match[0] : cleaned;
+    
+    suggestions = JSON.parse(jsonStr);
     if (!Array.isArray(suggestions)) {
       suggestions = [suggestions]; // Handle single-object response
     }
-  } catch {
+  } catch (parseError) {
+    console.error('[Gemini] Failed to parse AI suggestions. Raw response was:', rawResponse);
     throw new AppError(
       'AI returned an unparseable suggestions response. Please try again.',
       422,
