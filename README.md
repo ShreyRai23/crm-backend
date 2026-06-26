@@ -1,5 +1,5 @@
 <div align="center">
-  <h1>Xeno Mini CRM - Backend & Channel Service</h1>
+  <h1>Kinetics Mini CRM - Backend & Channel Service</h1>
   <p>The core intelligence and data engine powering the AI-Native Mini CRM.</p>
   <p>
     <img src="https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white" alt="Node.js" />

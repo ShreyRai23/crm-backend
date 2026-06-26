@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: xeno-crm-backend
+    name: kinetics-crm-backend
     runtime: node
     plan: free
     region: singapore          # closest to India
