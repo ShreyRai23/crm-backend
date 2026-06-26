@@ -13,6 +13,8 @@
 
 This repository contains a monolithic architecture that houses the main CRM API, a background campaign scheduler, and a decoupled Channel Service simulator to mimic real-world messaging delivery.
 
+> 🔗 **Frontend Repository:** [ShreyRai23/crm-frontend](https://github.com/ShreyRai23/crm-frontend)
+
 ## Architecture
 
 This project deliberately implements a two-service, callback-driven loop:
