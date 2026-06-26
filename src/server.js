@@ -13,12 +13,14 @@ const { errorHandler, notFound } = require('./middleware/errorHandler');
 const { startScheduler } = require('./services/scheduler.service');
 
 // ─── Route imports ────────────────────────────────────────────────────────────
+const authRoutes      = require('./routes/auth.routes');
 const customerRoutes  = require('./routes/customer.routes');
 const orderRoutes     = require('./routes/order.routes');
 const campaignRoutes  = require('./routes/campaign.routes');
 const aiRoutes        = require('./routes/ai.routes');
 const receiptRoutes   = require('./routes/receipt.routes');
 const analyticsRoutes = require('./routes/analytics.routes');
+const { protect }     = require('./middleware/auth.middleware');
 
 // ─── Embedded Channel Service (production-only) ───────────────────────────────
 // When EMBEDDED_CHANNEL=true the channel simulator is mounted directly on the
@@ -42,7 +44,7 @@ app.use(
       // Allow no-origin requests (curl, Postman, server-to-server)
       if (!origin) return callback(null, true);
       const allowed = [
-        process.env.FRONTEND_URL,           // e.g. https://xeno-crm.vercel.app
+        process.env.FRONTEND_URL,           // e.g. https://kinetics-crm.vercel.app
       ].filter(Boolean);
       // Also allow any Vercel preview deployment URL
       const isVercel = origin.endsWith('.vercel.app');
@@ -81,12 +83,16 @@ app.get('/health', (_req, res) => {
 });
 
 // ─── API Routes ───────────────────────────────────────────────────────────────
-app.use('/api/customers',  customerRoutes);
-app.use('/api/orders',     orderRoutes);
-app.use('/api/campaigns',  campaignRoutes);
-app.use('/api/ai',         aiRoutes);
-app.use('/api/receipt',    receiptRoutes);
-app.use('/api/analytics',  analyticsRoutes);
+// Auth is public — no protect middleware
+app.use('/api/auth',       authRoutes);
+
+// All other routes require a valid JWT
+app.use('/api/customers',  protect, customerRoutes);
+app.use('/api/orders',     protect, orderRoutes);
+app.use('/api/campaigns',  protect, campaignRoutes);
+app.use('/api/ai',         protect, aiRoutes);
+app.use('/api/receipt',    receiptRoutes);   // Webhooks from channel service — no user token
+app.use('/api/analytics',  protect, analyticsRoutes);
 
 // ─── Embedded Channel Service routes (production only) ────────────────────────
 if (EMBEDDED_CHANNEL) {
